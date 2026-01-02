@@ -1,0 +1,566 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { 
+  ArrowRight, 
+  Layers, 
+  Cpu, 
+  TrendingUp, 
+  Check, 
+  Menu, 
+  X, 
+  ChevronRight,
+  Target,
+  Shield,
+  Zap,
+  Hexagon
+} from 'lucide-react';
+
+// --- Animation Variants ---
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 60 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } // Custom bezier for "heavy" feel
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } }
+};
+
+const glowHover = {
+  hover: {
+    boxShadow: "0 0 20px rgba(245, 158, 11, 0.1)", // Amber glow
+    borderColor: "rgba(255, 255, 255, 0.5)",
+    y: -5,
+    transition: { duration: 0.3 }
+  }
+};
+
+// --- Components ---
+
+// Navigation
+const Navbar = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navLinks = [
+    { name: 'Philosophy', href: '#philosophy' },
+    { name: 'Services', href: '#services' },
+    { name: 'About', href: '#about' },
+  ];
+
+  return (
+    <motion.nav 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled ? 'bg-neutral-950/80 backdrop-blur-md py-4 border-b border-neutral-800' : 'bg-transparent py-8'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+        <a href="#" className="text-2xl font-bold tracking-tighter text-white z-50">
+          CRESIA<span className="text-amber-600">.</span>
+        </a>
+
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center space-x-12">
+          {navLinks.map((link) => (
+            <a 
+              key={link.name} 
+              href={link.href} 
+              className="text-xs font-bold text-neutral-400 hover:text-white transition-colors uppercase tracking-[0.2em]"
+            >
+              {link.name}
+            </a>
+          ))}
+          <motion.a 
+            href="#contact"
+            whileHover={{ scale: 1.05, backgroundColor: "#fff", color: "#000" }}
+            whileTap={{ scale: 0.95 }}
+            className="px-8 py-3 border border-white text-white text-xs font-bold uppercase tracking-widest transition-colors"
+          >
+            Start Building
+          </motion.a>
+        </div>
+
+        {/* Mobile Toggle */}
+        <button 
+          className="md:hidden text-white z-50"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-0 left-0 w-full h-screen bg-neutral-950 flex flex-col items-center justify-center space-y-8 z-40"
+          >
+            {navLinks.map((link) => (
+              <a 
+                key={link.name} 
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-2xl text-neutral-300 hover:text-white font-light tracking-widest uppercase"
+              >
+                {link.name}
+              </a>
+            ))}
+            <a 
+              href="#contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-8 py-4 bg-white text-neutral-950 font-bold uppercase tracking-widest mt-8"
+            >
+              Start Building
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
+  );
+};
+
+// Hero Section
+const Hero = () => {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -150]);
+
+  return (
+    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-neutral-950">
+      {/* Texture Overlay for Premium Feel */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0 mix-blend-overlay" 
+           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
+      </div>
+
+      {/* Grid Background */}
+      <div className="absolute inset-0 z-0 opacity-10" 
+           style={{ backgroundImage: 'linear-gradient(#404040 1px, transparent 1px), linear-gradient(90deg, #404040 1px, transparent 1px)', backgroundSize: '60px 60px' }}>
+      </div>
+      
+      {/* Decorative Glow - AMBER/GOLD now, not blue */}
+      <motion.div 
+        animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 right-0 w-[800px] h-[800px] bg-amber-600/10 rounded-full blur-[120px] pointer-events-none" 
+      />
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="relative"
+          >
+            <motion.div variants={fadeInUp} className="flex items-center space-x-4 mb-8">
+              <div className="h-[1px] w-12 bg-amber-500"></div>
+              <span className="text-amber-500 text-xs font-bold tracking-[0.3em] uppercase">
+                Est. 2024
+              </span>
+            </motion.div>
+            
+            <motion.h1 variants={fadeInUp} className="text-6xl md:text-8xl font-bold text-white leading-[0.95] mb-8 tracking-tighter">
+              Build<br />
+              <span className="text-neutral-500 italic font-serif">Better</span><br/>
+              Foundations.
+            </motion.h1>
+            
+            <motion.p variants={fadeInUp} className="text-xl text-neutral-400 max-w-lg mb-12 leading-relaxed font-light">
+              CRESIA engineers digital infrastructure for founders who value longevity. No gimmicks. Just stone, steel, and strategy.
+            </motion.p>
+            
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-6">
+              <motion.a 
+                href="#services" 
+                whileHover={{ x: 10 }}
+                className="group flex items-center space-x-4 text-white font-bold"
+              >
+                <span className="border-b border-white pb-1">View Frameworks</span>
+                <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-300" />
+              </motion.a>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            style={{ y: y2 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+            className="hidden lg:block relative"
+          >
+             {/* Architectural Abstract Visual */}
+             <div className="relative z-10 p-12 border border-neutral-800 bg-neutral-950/50 backdrop-blur-sm">
+                <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-amber-500"></div>
+                <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-amber-500"></div>
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-amber-500"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-amber-500"></div>
+                
+                <div className="grid grid-cols-2 gap-8">
+                    <motion.div 
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 4, repeat: Infinity }}
+                        className="space-y-4"
+                    >
+                        <div className="h-32 border border-neutral-800 bg-neutral-900/50 flex items-center justify-center">
+                            <Layers className="text-neutral-600" />
+                        </div>
+                        <div className="h-2 w-full bg-neutral-800"></div>
+                        <div className="h-2 w-2/3 bg-neutral-800"></div>
+                    </motion.div>
+                    
+                    <div className="space-y-4 mt-12">
+                         <div className="h-2 w-full bg-amber-900/30"></div>
+                         <div className="h-2 w-1/2 bg-amber-900/30"></div>
+                         <div className="h-32 border border-amber-900/20 bg-amber-900/5 flex items-center justify-center relative overflow-hidden">
+                            <motion.div 
+                                animate={{ top: ["100%", "0%"] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute left-0 w-full h-1 bg-amber-500/50 blur-md"
+                            />
+                            <Hexagon className="text-amber-700/50" />
+                        </div>
+                    </div>
+                </div>
+             </div>
+             
+             {/* Backing Depth Layer */}
+             <motion.div 
+                style={{ y: y1 }}
+                className="absolute -z-10 -bottom-12 -right-12 w-full h-full border border-neutral-800 opacity-50"
+             ></motion.div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Philosophy / Value Prop
+const Philosophy = () => {
+  const points = [
+    {
+      title: "Strategy First",
+      desc: "We don't write code until we understand your 5-year vision. Every pixel serves a specific business purpose."
+    },
+    {
+      title: "Modular Systems",
+      desc: "Stop rebuilding every two years. Our stacks are built to scale, allowing new features to snap in easily."
+    },
+    {
+      title: "Automation Native",
+      desc: "A pretty website that doesn't talk to your CRM is a liability. We connect your frontend to your operations."
+    }
+  ];
+
+  return (
+    <section id="philosophy" className="py-32 bg-neutral-950 relative">
+      <div className="max-w-7xl mx-auto px-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ margin: "-100px" }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-neutral-800"
+        >
+          {points.map((point, index) => (
+            <motion.div
+              key={index}
+              variants={fadeInUp}
+              whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+              className="p-12 border-r border-b border-neutral-800 group transition-colors cursor-default"
+            >
+              <span className="text-amber-500/50 text-5xl font-serif mb-6 block group-hover:text-amber-500 transition-colors duration-500">
+                0{index + 1}
+              </span>
+              <h3 className="text-2xl font-bold text-white mb-6 tracking-wide group-hover:translate-x-2 transition-transform duration-300">
+                {point.title}
+              </h3>
+              <p className="text-neutral-500 leading-relaxed text-sm font-medium tracking-wide">
+                {point.desc}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// Services / Tiers
+const Services = () => {
+  const tiers = [
+    {
+      name: "Silver",
+      subtitle: "The Launchpad",
+      features: ["Custom Web Design", "Responsive Layout", "Basic Analytics", "Contact Integration"],
+      ideal: "MVP Validation",
+    },
+    {
+      name: "Gold",
+      subtitle: "The Authority",
+      features: ["Brand Identity System", "CMS Integration", "CRM Automations", "Custom Motion"],
+      ideal: "Market Dominance",
+      recommended: true
+    },
+    {
+      name: "Platinum",
+      subtitle: "The Ecosystem",
+      features: ["Web App Functionality", "Complex Workflows", "User Portals", "Priority Support"],
+      ideal: "Aggressive Scale",
+    }
+  ];
+
+  return (
+    <section id="services" className="py-32 bg-neutral-950 border-t border-neutral-900">
+      <div className="max-w-7xl mx-auto px-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="mb-24"
+        >
+          <h2 className="text-5xl md:text-7xl text-white font-bold tracking-tighter mb-6">
+            Frameworks.
+          </h2>
+          <div className="h-1 w-24 bg-amber-600"></div>
+        </motion.div>
+
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        >
+          {tiers.map((tier, index) => (
+            <motion.div
+              key={index}
+              variants={fadeInUp}
+              whileHover="hover"
+              className={`relative p-10 bg-neutral-900/20 border ${tier.recommended ? 'border-amber-600/30' : 'border-neutral-800'} flex flex-col justify-between min-h-[500px] overflow-hidden group`}
+            >
+               <motion.div variants={glowHover} className="absolute inset-0 pointer-events-none border border-transparent"></motion.div>
+              
+              {tier.recommended && (
+                <div className="absolute top-0 right-0 p-4">
+                  <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-4xl text-white font-light mb-2">{tier.name}</h3>
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-[0.2em] mb-8">{tier.subtitle}</p>
+                
+                <div className="space-y-4 mb-8">
+                  {tier.features.map((feat, i) => (
+                    <div key={i} className="flex items-center space-x-3">
+                      <div className="w-1 h-1 bg-neutral-600 group-hover:bg-white transition-colors"></div>
+                      <span className="text-neutral-400 text-sm group-hover:text-neutral-200 transition-colors">{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-8 pt-8 border-t border-neutral-800">
+                    <span className="block text-xs text-neutral-600 uppercase mb-1">Best For</span>
+                    <span className="text-white font-serif italic">{tier.ideal}</span>
+                </div>
+                <button className={`w-full py-4 text-xs font-bold uppercase tracking-widest transition-all ${tier.recommended ? 'bg-white text-neutral-950 hover:bg-neutral-200' : 'border border-neutral-700 text-white hover:border-white'}`}>
+                  Select
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// About Section
+const About = () => {
+  return (
+    <section id="about" className="py-32 bg-neutral-950 relative overflow-hidden">
+      {/* Texture */}
+      <div className="absolute inset-0 opacity-[0.02]" 
+           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="relative"
+          >
+             {/* Minimalist Graphic */}
+             <div className="h-[600px] w-full border-l border-neutral-800 relative pl-8 flex flex-col justify-center space-y-12">
+                <motion.div 
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "80%" }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    className="h-16 bg-neutral-900"
+                ></motion.div>
+                <motion.div 
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "100%" }}
+                    transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+                    className="h-16 bg-neutral-800"
+                ></motion.div>
+                <motion.div 
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "60%" }}
+                    transition={{ duration: 1.5, delay: 0.4, ease: "easeOut" }}
+                    className="h-16 bg-neutral-700"
+                ></motion.div>
+             </div>
+             <div className="absolute top-0 right-0 text-[10rem] font-bold text-neutral-900 -z-10 leading-none select-none">
+                 SYS
+             </div>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            <motion.span variants={fadeInUp} className="text-amber-600 text-xs font-bold tracking-[0.2em] uppercase block mb-8">
+              The Mission
+            </motion.span>
+            <motion.h2 variants={fadeInUp} className="text-4xl md:text-5xl text-white font-bold mb-10 leading-tight">
+              Agencies sell hours.<br/>
+              <span className="text-neutral-500">We build assets.</span>
+            </motion.h2>
+            <div className="space-y-8 text-lg text-neutral-400 font-light leading-relaxed">
+              <motion.p variants={fadeInUp}>
+                Most startups fail because they build on quicksand. They hire freelancers for quick fixes and end up with a fragmented mess of tools that don't talk to each other.
+              </motion.p>
+              <motion.p variants={fadeInUp}>
+                CRESIA exists to solve the "Growth Gap." We provide the architectural discipline of an enterprise firm with the velocity of a startup.
+              </motion.p>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Contact / CTA Section
+const Contact = () => {
+  return (
+    <section id="contact" className="py-32 bg-neutral-950 relative overflow-hidden border-t border-neutral-900">
+       {/* Warm Amber Glow instead of Blue */}
+      <motion.div 
+        animate={{ opacity: [0.1, 0.3, 0.1] }}
+        transition={{ duration: 5, repeat: Infinity }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full bg-amber-900/5 blur-[100px] pointer-events-none" 
+      />
+      
+      <div className="max-w-3xl mx-auto px-6 relative z-10 text-center">
+        <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={scaleIn}
+            className="p-8 md:p-0"
+        >
+            <motion.h2 variants={fadeInUp} className="text-5xl md:text-7xl text-white font-bold mb-8 tracking-tighter">
+              Ready to stabilize?
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-neutral-400 text-lg mb-12 max-w-xl mx-auto">
+              We accept 4 founders per month. This ensures we can dedicate full architectural resources to your build.
+            </motion.p>
+
+            <motion.form variants={staggerContainer} initial="hidden" whileInView="visible" className="max-w-md mx-auto space-y-2 text-left">
+                <motion.div variants={fadeInUp} className="group relative">
+                    <input type="text" className="w-full bg-transparent border-b border-neutral-700 text-white p-4 focus:outline-none focus:border-white transition-colors placeholder-neutral-600" placeholder="Name" />
+                </motion.div>
+                <motion.div variants={fadeInUp} className="group relative">
+                    <input type="email" className="w-full bg-transparent border-b border-neutral-700 text-white p-4 focus:outline-none focus:border-white transition-colors placeholder-neutral-600" placeholder="Email" />
+                </motion.div>
+                
+                <motion.button 
+                  variants={fadeInUp}
+                  whileHover={{ scale: 1.02, backgroundColor: "#fff", color: "#000" }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit" 
+                  className="w-full bg-neutral-900 border border-neutral-700 text-white font-bold uppercase tracking-widest py-6 mt-12 hover:border-white transition-all flex items-center justify-center space-x-4"
+                >
+                    <span>Request Access</span>
+                    <ArrowRight size={18} />
+                </motion.button>
+            </motion.form>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// Footer
+const Footer = () => {
+  return (
+    <footer className="bg-neutral-950 border-t border-neutral-900 py-12">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center opacity-50 hover:opacity-100 transition-opacity duration-500">
+        <div className="mb-4 md:mb-0">
+          <span className="text-lg font-bold tracking-tighter text-white">
+            CRESIA<span className="text-neutral-600">.</span>
+          </span>
+        </div>
+        <div className="flex space-x-8">
+            <a href="#" className="text-neutral-500 hover:text-white transition-colors text-xs uppercase tracking-widest">Twitter</a>
+            <a href="#" className="text-neutral-500 hover:text-white transition-colors text-xs uppercase tracking-widest">LinkedIn</a>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+// Main App Layout
+export default function App() {
+  return (
+    <div className="font-sans antialiased bg-neutral-950 text-neutral-200 selection:bg-amber-500 selection:text-white scroll-smooth">
+      <Navbar />
+      <Hero />
+      <Philosophy />
+      <Services />
+      <About />
+      <Contact />
+      <Footer />
+    </div>
+  );
+}
